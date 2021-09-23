@@ -7,6 +7,57 @@
     <% end %>
   </p>
 
+
+  <div>
+    
+    <% if not @friendship_requested.nil? %>
+      <%# If I asked for friendship %>
+      <% if @friendship_requested.status == "Approved"%>
+        <p> You and <%= @user.username %> are friends!</p> 
+      <% elsif @friendship_requested.status == "Request"%>
+        <p> You already asked <%= @user.username %> for friendship</p> 
+      <% elsif @friendship_requested.status == "Rejected"%>
+        <p> You  friendship request from <%= @user.username %> has been Rejected </p>
+      <% end %>
+
+
+      
+    <% elsif not @friendship_received.nil? %>
+      <%# If the other user asked me for friendship %>
+      <% if @friendship_received.status == "Approved"%>
+        <p> You and <%= @user.username %> are friends!</p> 
+      <% elsif @friendship_received.status == "Request"%>
+        <p> You Have a pending friendship request from <%= @user.username %> </p> 
+      <% elsif @friendship_received.status == "Rejected"%>
+        <p> You rejected <%= @user.username %> friendship request</p> 
+      <% end %>    
+
+    <% elsif not current_user&.eql? @user  %>
+      <%# No request in either direction %>
+      <div>
+      <%= form_with url: "/profiles/#{@user.username}/friend_request" do |f| %>
+      
+        <%= f.submit "Add #{@user.username} as friend" %>
+      
+      
+      <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div>
+    <h3> A list of all <%= @user.username %> friends: </h3>
+    <% @friends_list_requested.each do |friend| %>
+    <%= friend.requested.username %> -
+      <%= link_to "#{friend.requested.username}'s profile",profile_path(friend.requested.username) %><br/>
+    <% end %>
+    
+      <% @friends_list_received.each do |friend| %>
+    <%= friend.requester.username %> -
+      <%= link_to "#{friend.requester.username}'s profile",profile_path(friend.requester.username) %><br/>
+    <% end %>
+  </div>
+
   <% if @user.photos.empty? %>
     <p>There is still no photos to display.</p>
   <% else %>
